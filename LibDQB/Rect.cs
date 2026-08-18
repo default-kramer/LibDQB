@@ -16,6 +16,15 @@ public sealed record Rect(XZ Start, XZ End)
 
     public bool Contains(XZ xz) => GetIndex(xz).HasValue;
 
+    public Rect Intersection(Rect other)
+    {
+        int xStart = Math.Max(this.Start.X, other.Start.X);
+        int zStart = Math.Max(this.Start.Z, other.Start.Z);
+        int xEnd = Math.Min(this.End.X, other.End.X);
+        int zEnd = Math.Min(this.End.Z, other.End.Z);
+        return new Rect(new XZ(xStart, zStart), new XZ(xEnd, zEnd));
+    }
+
     /// <summary>
     /// If the given <paramref name="xz"/> is within this box, returns a unique index
     /// for that xz in the inclusive range 0 .. (Width*Height - 1).
