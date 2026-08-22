@@ -12,6 +12,9 @@ namespace LibDQB;
 /// </summary>
 public sealed record Rect(XZ Start, XZ End)
 {
+    public static readonly Rect Zero = new(new XZ(0, 0), new XZ(0, 0));
+    public bool IsZero => Size.X < 1 || Size.Z < 1;
+
     public XZ Size => new XZ(End.X - Start.X, End.Z - Start.Z);
 
     public bool Contains(XZ xz) => GetIndex(xz).HasValue;
@@ -79,21 +82,56 @@ public sealed record Rect(XZ Start, XZ End)
             throw new ArgumentException("Sequence contains no elements");
         }
 
-        int xMin = enumerator.Current.X;
-        int xMax = enumerator.Current.X;
-
-        int zMin = enumerator.Current.Z;
-        int zMax = enumerator.Current.Z;
-
+        var finder = new BoundsFinder();
+        finder.Include(enumerator.Current);
         while (enumerator.MoveNext())
         {
-            var xz = enumerator.Current;
+            finder.Include(enumerator.Current);
+        }
+
+        return finder.CurrentBounds() ?? throw new Exception("Assert fail");
+    }
+
+    public sealed class BoundsFinder
+    {
+        private int xMin = int.MaxValue;
+        private int zMin = int.MaxValue;
+        private int xMax = int.MinValue;
+        private int zMax = int.MinValue;
+
+        public BoundsFinder Include(XZ xz)
+        {
             xMin = Math.Min(xMin, xz.X);
             zMin = Math.Min(zMin, xz.Z);
             xMax = Math.Max(xMax, xz.X);
             zMax = Math.Max(zMax, xz.Z);
+            return this;
         }
 
-        return new Rect(new XZ(xMin, zMin), new XZ(xMax + 1, zMax + 1));
+        public BoundsFinder IncludeAll(IEnumerable<XZ> xzs)
+        {
+            foreach (var xz in xzs) { Include(xz); }
+            return this;
+        }
+
+        public Rect? CurrentBounds()
+        {
+            if (xMax >= xMin && zMax >= zMin)
+            {
+                return new Rect(new XZ(xMin, zMin), new XZ(xMax + 1, zMax + 1));
+            }
+            return null;
+        }
+    }
+
+    public XZ ApproximateCenter()
+    {
+        if (IsZero)
+        {
+            throw new InvalidOperationException("not defined for Zero rect");
+        }
+        int x = Start.X + (End.X - Start.X) / 2;
+        int z = Start.Z + (End.Z - Start.Z) / 2;
+        return new XZ(x, z);
     }
 }

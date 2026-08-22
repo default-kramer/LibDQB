@@ -39,6 +39,21 @@ public sealed class Array2D<T> : IGrid<T>
         return array;
     }
 
+    public void CopyFrom(IEnumerable<IEnumerable<T>> rows)
+    {
+        int z = Bounds.Start.Z;
+        foreach (var row in rows)
+        {
+            int x = Bounds.Start.X;
+            foreach (var val in row)
+            {
+                this.Set(new XZ(x, z), val);
+                x++;
+            }
+            z++;
+        }
+    }
+
     public void Set(XZ xz, T value)
     {
         int idx = Bounds.GetIndex(xz) ?? throw new ArgumentOutOfRangeException(nameof(xz));
