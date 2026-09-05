@@ -6,4 +6,7 @@ using System.Threading.Tasks;
 
 namespace LibDQB.DQB2Minimap;
 
-public interface IReadOnlyMinimap : IReadOnlyGrid<MinimapTile> { }
+public interface IReadOnlyMinimap : IReadOnlyGrid<MinimapTile>
+{
+    ReadOnlySpan<byte> RawBytes { get; }
+}

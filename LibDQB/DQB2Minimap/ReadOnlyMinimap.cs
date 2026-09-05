@@ -23,6 +23,8 @@ class ReadOnlyMinimap : IReadOnlyMinimap
         this.data = data;
     }
 
+    ReadOnlySpan<byte> IReadOnlyMinimap.RawBytes => data.Span;
+
     const int BytesPerTile = 2;
     const int MapDimension = 256;
     internal const int TileDataLength = MapDimension * MapDimension * BytesPerTile;
