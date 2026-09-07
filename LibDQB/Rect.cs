@@ -76,10 +76,20 @@ public sealed record Rect(XZ Start, XZ End)
 
     public static Rect GetBounds(IEnumerable<XZ> xzs)
     {
+        var rect = GetBoundsOrNull(xzs);
+        if (rect == null)
+        {
+            throw new ArgumentException("Sequence contains no elements");
+        }
+        return rect;
+    }
+
+    public static Rect? GetBoundsOrNull(IEnumerable<XZ> xzs)
+    {
         using var enumerator = xzs.GetEnumerator();
         if (!enumerator.MoveNext())
         {
-            throw new ArgumentException("Sequence contains no elements");
+            return null;
         }
 
         var finder = new BoundsFinder();
