@@ -24,9 +24,12 @@ namespace LibDQB.B2
         readonly static byte[] ScreenshotDataMagicNumber = { 0x61, 0x65, 0x72, 0x43, 0x10 };
 
         //===================================== Functions =====================================//
-        public static async Task<RawCommonData> LoadCommonDataAsync(FileInfo file)
+        public static Task<RawCommonData> LoadCommonDataAsync(FileInfo file)
+            => LoadCommonDataAsync(file, new FileDataReadOptions());
+
+        public static async Task<RawCommonData> LoadCommonDataAsync(FileInfo file, FileDataReadOptions options)
         {
-            var (header, body) = await LoadCompressedFileAsync(file, new FileDataReadOptions(), CommonDataHeaderLength);
+            var (header, body) = await LoadCompressedFileAsync(file, options, CommonDataHeaderLength);
 
             if (!IsHeaderValid(header, CommonDataMagicNumber))
             {
